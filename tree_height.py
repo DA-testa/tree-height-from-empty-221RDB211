@@ -6,24 +6,25 @@ import numpy as np
 
 
 def compute_height(n, parents):
-    height = [0]*n
-    for node in range(n):
-        if parents[node] == -1:
-            height[node] = 1
-        else:
-            parent_height = height[parents[node]]
-            height[node] = parent_height + 1
-    return max(height)
-    
-
+    parents = np.array(parents)
+    heights = np.zeros(n, dtype=int)
+    def compute_subtree_height(node):
+        if not np.any(parents == node):
+            heights[node] = 1
+            return 1
+        height = 1 + np.max(compute_subtree_height(child) for child in np.where(parents == node)[0])
+        heights[node] = height
+        return height
+    root = np.where(parents == -1)[0][0]
+    compute_subtree_height(root)
+    return np.max(heights)
 
 def main():
     n = int(input())
-    parents = np.array(list(map(int, input().split())))
+    parents = list(map(int, input().split()))
+    print(compute_height(n, parents))
 
-    height = compute_height(n, parents)
-    print(height)
-sys.setrecursionlimit(10**7)  # max depth of recursion
-threading.stack_size(2**27)   # new thread will get stack of such size
+sys.setrecursionlimit(10**7) 
+threading.stack_size(2**27)   
 threading.Thread(target=main).start()
 main()
